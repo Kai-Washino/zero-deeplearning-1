@@ -1,14 +1,12 @@
+import numpy as np
+import matplotlib.pylab as plt
+
 import pickle
 import numpy as np
 
+from softmax import softmax
 from mnist import load_mnist
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-def softmax(x):
-    x = x - np.max(x, axis=-1, keepdims=True)   # オーバーフロー対策
-    return np.exp(x) / np.sum(np.exp(x), axis=-1, keepdims=True)
+from sigmoid import sigmoid
 
 def get_data():
     (x_train, t_train), (x_test, t_test) = load_mnist(normalize=True, flatten=True, one_hot_label=False)
@@ -34,12 +32,14 @@ def predict(network, x):
 
 x, t = get_data()
 network = init_network()
+
+batch_size = 100
 accuracy_cnt = 0
-# print(network)
-for i in range(len(x)):
-    y = predict(network, x[i])
-    p= np.argmax(y) # 最も確率の高い要素のインデックスを取得
-    if p == t[i]:
-        accuracy_cnt += 1
+
+for i in range(0, len(x), batch_size):
+    x_batch = x[i:i+batch_size]
+    y_batch = predict(network, x_batch)
+    p= np.argmax(y_batch, axis=1)
+    accuracy_cnt += np.sum(p == t[i:i+batch_size])
 
 print("Accuracy:" + str(float(accuracy_cnt) / len(x)))
