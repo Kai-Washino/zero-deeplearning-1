@@ -13,7 +13,7 @@ class TwoLayerNet:
         self.params['b2'] = np.zeros(output_size)
 
         self.layers = OrderedDict()
-        self.layers['Affine1'] = Affine(self.params['W1', self.params['b1']])
+        self.layers['Affine1'] = Affine(self.params['W1'], self.params['b1'])
         self.layers['Relu1'] = Relu()
         self.layers['Affine2'] = Affine(self.params['W2'], self.params['b2'])
 
@@ -21,7 +21,7 @@ class TwoLayerNet:
     
     def predict(self, x):
         for layer in self.layers.values():
-            x = layer.forward()
+            x = layer.forward(x)
         return x
         # W1, W2 = self.params['W1'], self.params['W2']
         # b1, b2 = self.params['b1'], self.params['b2']
@@ -35,7 +35,7 @@ class TwoLayerNet:
     
     def loss(self, x, t):
         y = self.predict(x)
-        return cross_entropy_error(y, t)
+        return self.lastLayer.forward(y, t)
     
     def accuracy(self, x, t):
         y = self.predict(x)
@@ -60,15 +60,15 @@ class TwoLayerNet:
         dout = 1
         dout = self.lastLayer.backward(dout)
 
-        layers = list(self, layers.values())
-        layers.reverse
+        layers = list(self.layers.values())
+        layers.reverse()
         for layer in layers:
             dout = layer.backward(dout)
         
         grads = {}
-        grads['W1'] = self.layers['Affine1'].dw
+        grads['W1'] = self.layers['Affine1'].dW
         grads['b1'] = self.layers['Affine1'].db
-        grads['W2'] = self.layers['Affine2'].dw
+        grads['W2'] = self.layers['Affine2'].dW
         grads['b2'] = self.layers['Affine2'].db
 
         return grads
